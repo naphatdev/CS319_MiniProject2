@@ -61,6 +61,10 @@ npm run dev
 
 ฐานข้อมูลอยู่ที่ `server/db.json` และใช้ [JSON Server](https://github.com/typicode/json-server)
 
+## Deploy บน Vercel
+
+Vercel ใช้คำสั่ง `npm run build` และเผยแพร่โฟลเดอร์ `dist` ได้โดยตรง ข้อมูลตัวอย่างจะถูกรวมอยู่ใน production bundle จึงไม่ต้องเปิด JSON Server แยก ส่วน `vercel.json` จะส่ง route ของ React Router กลับไปยัง `index.html` เพื่อให้เปิดลิงก์ย่อยและรีเฟรชหน้าได้ตามปกติ
+
 ## การจัดการ State
 
 - **TanStack Query** ดูแล Server State ได้แก่รายการ Components, รายละเอียด, cache, loading, error และ retry โดยตั้ง `staleTime` 5 นาที
