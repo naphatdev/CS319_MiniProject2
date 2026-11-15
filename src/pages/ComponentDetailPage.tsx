@@ -5,7 +5,7 @@ import { FeedbackToast } from '../components/common/FeedbackToast'
 import { ErrorState } from '../components/common/States'
 import { PreviewFrame } from '../components/preview/PreviewFrame'
 import { useComponent } from '../hooks/useComponents'
-import { useFavoritesStore } from '../stores/useFavoritesStore'
+import { useFavoriteMutation, useFavorites } from '../hooks/useFavorites'
 import { copyText } from '../utils/preview'
 
 type CodeTab = 'HTML' | 'CSS' | 'Tailwind CSS'
@@ -16,8 +16,9 @@ export function ComponentDetailPage() {
   const [activeTab, setActiveTab] = useState<CodeTab>('HTML')
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ message: string; type?: 'success' | 'error' } | null>(null)
-  const isFavorite = useFavoritesStore((state) => state.favoriteIds.includes(id))
-  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
+  const { data: favorites } = useFavorites()
+  const favoriteMutation = useFavoriteMutation()
+  const isFavorite = (favorites ?? []).some((favorite) => favorite.componentId === id)
 
   useEffect(() => {
     if (!feedback) return
@@ -65,18 +66,20 @@ export function ComponentDetailPage() {
 
       <div className="detail-heading">
         <div><span className="category-label">{component.category}</span><h1>{component.name}</h1><p>{component.description}</p></div>
-        <button className={`button ${isFavorite ? 'soft' : 'outline'}`} onClick={() => toggleFavorite(component.id)}><Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />{isFavorite ? 'บันทึกแล้ว' : 'บันทึก'}</button>
+        {favoriteMutation.user
+          ? <button className={`button ${isFavorite ? 'soft' : 'outline'}`} disabled={favoriteMutation.isPending} onClick={() => favoriteMutation.mutate({ componentId: component.id, favorite: isFavorite })}><Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />{isFavorite ? 'บันทึกแล้ว' : 'บันทึก'}</button>
+          : <Link className="button outline" to="/login"><Heart size={18} />เข้าสู่ระบบเพื่อบันทึก</Link>}
       </div>
 
       <div className="detail-grid">
         <section className="preview-panel">
-          <div className="panel-heading"><div><Sparkles size={18} /><h2>ตัวอย่างจริง</h2></div><span>Interactive Preview</span></div>
+          <div className="panel-heading"><div><Sparkles size={18} /><h2>ดูตัวอย่าง</h2></div><span>ลองใช้งานได้ทันที</span></div>
           <PreviewFrame component={adjustedComponent} className="detail-preview-frame" />
         </section>
 
         <aside className="customize-panel">
-          <div className="panel-heading"><div><Code2 size={18} /><h2>ข้อมูลตัวอย่าง</h2></div></div>
-          <dl><div><dt>หมวดหมู่</dt><dd>{component.category}</dd></div><div><dt>รูปแบบโค้ด</dt><dd>{component.framework}</dd></div><div><dt>เหมาะสำหรับ</dt><dd>ผู้เริ่มต้น</dd></div></dl>
+          <div className="panel-heading"><div><Code2 size={18} /><h2>รายละเอียด</h2></div></div>
+          <dl><div><dt>หมวดหมู่</dt><dd>{component.category}</dd></div><div><dt>รูปแบบโค้ด</dt><dd>{component.framework}</dd></div><div><dt>การนำไปใช้</dt><dd>ปรับแต่งได้ทันที</dd></div></dl>
           <div className="palette-label">เลือกโทนสี</div>
           <div className="palette">{paletteColors.map((color) => <button key={color} className={(selectedColor ?? component.accent) === color ? 'active' : ''} style={{ background: color }} onClick={() => setSelectedColor(color)} aria-label={`เปลี่ยนโทนสีเป็น ${color}`} aria-pressed={(selectedColor ?? component.accent) === color} />)}</div>
           <div className="tip-box"><Sparkles size={17} /><p><strong>ลองปรับแต่ง</strong><br />คัดลอกโค้ดด้านล่าง แล้วนำไปลองแก้ใน Playground ได้เลย</p></div>
@@ -94,7 +97,7 @@ export function ComponentDetailPage() {
 
       <section className="ai-helper">
         <div className="ai-helper-icon"><Bot size={28} /></div>
-        <div><span className="section-kicker">AI Reference</span><h2>นำแบบนี้ไปให้ AI ช่วยสร้างเว็บ</h2><p>แคปภาพตัวอย่าง แล้วคัดลอกคำอธิบายนี้ไปพร้อมกัน AI จะเข้าใจสิ่งที่คุณต้องการชัดขึ้น</p><blockquote>{component.aiPrompt}</blockquote></div>
+        <div><span className="section-kicker">ต่อยอดด้วย AI</span><h2>บอก AI ให้เข้าใจแบบที่คุณต้องการ</h2><p>แคปภาพตัวอย่าง แล้วแนบคำอธิบายนี้ไปด้วย เพื่อให้ผลลัพธ์ตรงกับไอเดียมากขึ้น</p><blockquote>{component.aiPrompt}</blockquote></div>
         <button className="button primary" onClick={() => void handleCopy(component.aiPrompt, 'คัดลอก Prompt สำหรับ AI แล้ว')}><Check size={17} />คัดลอก Prompt</button>
       </section>
     </div>

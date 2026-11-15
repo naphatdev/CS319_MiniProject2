@@ -1,19 +1,31 @@
 import { useState } from 'react'
-import { Heart, Menu, Search, X } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Heart, LogIn, LogOut, Menu, Search, X } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { useFavoritesStore } from '../../stores/useFavoritesStore'
+import { useFavorites } from '../../hooks/useFavorites'
+import { useAuthStore } from '../../stores/useAuthStore'
 
 const navItems = [
   { to: '/', label: 'หน้าหลัก', end: true },
   { to: '/', label: 'Explore Components', end: true, desktopOnly: true },
   { to: '/collection', label: 'My Collection' },
   { to: '/playground', label: 'Playground' },
+  { to: '/manage', label: 'จัดการคลัง' },
   { to: '/about', label: 'About' },
 ]
 
 export function RootLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const favoriteCount = useFavoritesStore((state) => state.favoriteIds.length)
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+  const { data: favorites } = useFavorites()
+  const queryClient = useQueryClient()
+  const favoriteCount = favorites?.length ?? 0
+
+  function handleLogout() {
+    logout()
+    queryClient.removeQueries({ queryKey: ['favorites'] })
+  }
 
   return (
     <div className="app-shell">
@@ -42,6 +54,9 @@ export function RootLayout() {
               <Heart size={18} />
               <span>{favoriteCount}</span>
             </NavLink>
+            {user
+              ? <button className="auth-button" onClick={handleLogout} title={user.email}><LogOut size={17} /><span>ออกจากระบบ</span></button>
+              : <NavLink className="auth-button" to="/login"><LogIn size={17} /><span>เข้าสู่ระบบ</span></NavLink>}
             <button className="mobile-menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-label="เปิดเมนู" aria-expanded={menuOpen}>
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -63,7 +78,7 @@ export function RootLayout() {
       <footer className="site-footer">
         <div className="container footer-inner">
           <div className="brand"><img className="brand-logo footer-brand-logo" src="/nataui-logo.svg" alt="NaTaUI" /></div>
-          <p>ชอบแบบไหน ก็สร้างเว็บแบบนั้น · โปรเจกต์เพื่อการเรียนรู้</p>
+          <p>เลือกไอเดีย ทดลองโค้ด และนำไปต่อยอดในแบบของคุณ</p>
           <span>© 2026 NaTaUI</span>
         </div>
       </footer>

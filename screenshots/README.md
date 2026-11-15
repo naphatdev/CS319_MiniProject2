@@ -1,11 +1,14 @@
 # Screenshots
 
-ก่อนส่งงาน ให้เปิดทั้ง Frontend และ Mock API แล้วบันทึกภาพหน้าจอจริงที่ความกว้าง Desktop และ Mobile ของหน้าต่อไปนี้:
+ภาพหน้าเว็บจริงสำหรับ HW3 อยู่ในโฟลเดอร์ `hw3/` ประกอบด้วย:
 
 - Explore Components
 - Component Detail
 - My Collection (มีรายการที่บันทึกแล้ว)
 - About
 - Playground
+- Login และ Register
+- Full-Stack CRUD (`/manage`)
+- Mobile Explore
 
-ไม่ควรใช้ภาพจำลองแทนภาพจากแอปที่กำลังทำงานจริง
+ภาพ Supabase Table Editor และ Schema Visualizer อยู่ในโฟลเดอร์นี้ ชื่อขึ้นต้นด้วย `w13act_` ภาพทั้งหมดถ่ายจากระบบที่กำลังทำงานจริง

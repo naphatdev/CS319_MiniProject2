@@ -1,47 +1,51 @@
-import componentDatabase from '../../server/db.json'
-import type { ComponentFilters, UiComponent } from '../types/component'
+import type { ComponentFilters, ComponentInput, UiComponent } from '../types/component'
 
-const components = componentDatabase.components as UiComponent[]
-const API_URL = import.meta.env.DEV
-  ? (import.meta.env.VITE_API_URL ?? '/api')
-  : import.meta.env.VITE_API_URL
+const API_URL = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '')
 
-async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`)
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...init,
+    headers: {
+      ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+      ...init?.headers,
+    },
+  })
+
   if (!response.ok) {
-    throw new Error(`ไม่สามารถโหลดข้อมูลได้ (${response.status})`)
+    const payload = await response.json().catch(() => null) as { message?: string } | null
+    throw new Error(payload?.message ?? `ไม่สามารถดำเนินการได้ (${response.status})`)
   }
+
+  if (response.status === 204) return undefined as T
   return response.json() as Promise<T>
 }
 
 export function getComponents(filters: ComponentFilters = {}): Promise<UiComponent[]> {
-  if (API_URL) {
-    const params = new URLSearchParams()
-    if (filters.category) params.set('category', filters.category)
-    if (filters.framework) params.set('framework', filters.framework)
-    const query = params.size ? `?${params.toString()}` : ''
-    return request<UiComponent[]>(`/components${query}`)
-  }
-
-  const filteredComponents = components.filter((component) => {
-    const matchesCategory = !filters.category || component.category === filters.category
-    const matchesFramework = !filters.framework || component.framework === filters.framework
-    return matchesCategory && matchesFramework
-  })
-
-  return Promise.resolve(filteredComponents)
+  const params = new URLSearchParams()
+  if (filters.category) params.set('category', filters.category)
+  if (filters.framework) params.set('framework', filters.framework)
+  const query = params.size ? `?${params.toString()}` : ''
+  return request<UiComponent[]>(`/components${query}`)
 }
 
 export function getComponent(id: string): Promise<UiComponent> {
-  if (API_URL) {
-    return request<UiComponent>(`/components/${encodeURIComponent(id)}`)
-  }
+  return request<UiComponent>(`/components/${encodeURIComponent(id)}`)
+}
 
-  const component = components.find((item) => item.id === id)
+export function createComponent(input: ComponentInput): Promise<UiComponent> {
+  return request<UiComponent>('/components', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
 
-  if (!component) {
-    return Promise.reject(new Error(`ไม่พบคอมโพเนนต์ ${id}`))
-  }
+export function updateComponent(id: string, input: ComponentInput): Promise<UiComponent> {
+  return request<UiComponent>(`/components/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+}
 
-  return Promise.resolve(component)
+export function deleteComponent(id: string): Promise<void> {
+  return request<void>(`/components/${encodeURIComponent(id)}`, { method: 'DELETE' })
 }

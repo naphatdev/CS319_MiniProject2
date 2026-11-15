@@ -7,7 +7,7 @@ export function LoadingGrid({ count = 6 }: { count?: number }) {
 }
 
 export function ErrorState({ onRetry, message = 'เกิดปัญหาในการโหลดข้อมูล' }: { onRetry: () => void; message?: string }) {
-  return <div className="state-card"><AlertTriangle size={44} /><h2>{message}</h2><p>กรุณาตรวจสอบว่า Mock API กำลังทำงาน แล้วลองอีกครั้ง</p><button className="button primary" onClick={onRetry}><RefreshCw size={17} />ลองใหม่</button></div>
+  return <div className="state-card"><AlertTriangle size={44} /><h2>{message}</h2><p>เชื่อมต่อข้อมูลไม่สำเร็จ กรุณารอสักครู่แล้วลองอีกครั้ง</p><button className="button primary" onClick={onRetry}><RefreshCw size={17} />ลองใหม่</button></div>
 }
 
 export function EmptyState({ title = 'ยังไม่พบรายการ', description = 'ลองเปลี่ยนคำค้นหาหรือตัวกรองดูอีกครั้ง' }: { title?: string; description?: string }) {

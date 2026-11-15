@@ -113,8 +113,8 @@ export function ExplorePage() {
           <div className="section-heading centered"><div><span className="section-kicker"><Boxes size={15} /> เริ่มต้นง่ายมาก</span><h2>จากไอเดียสู่เว็บไซต์ใน 3 ขั้นตอน</h2></div></div>
           <div className="steps-grid">
             <article><span>01</span><h3>เลือกแบบที่ชอบ</h3><p>สำรวจคลัง UI แล้วเลือกองค์ประกอบที่เข้ากับเว็บของคุณ</p></article>
-            <article><span>02</span><h3>แคปภาพตัวอย่าง</h3><p>แคปเฉพาะหน้าตา UI ที่ชอบ พร้อมคำอธิบายสำหรับ AI</p></article>
-            <article><span>03</span><h3>ให้ AI ช่วยสร้าง</h3><p>แนบภาพและ Prompt เพื่อให้ AI สร้างหน้าตาใกล้เคียงได้ทันที</p></article>
+            <article><span>02</span><h3>เก็บภาพและคำอธิบาย</h3><p>แคปหน้าตาที่ชอบ แล้วคัดลอกคำอธิบายที่เราเตรียมไว้ให้</p></article>
+            <article><span>03</span><h3>นำไปต่อยอด</h3><p>แนบภาพพร้อมคำอธิบาย แล้วให้ AI ช่วยสร้างหน้าเว็บที่ใกล้เคียง</p></article>
           </div>
         </div>
       </section>

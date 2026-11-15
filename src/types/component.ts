@@ -30,3 +30,5 @@ export interface ComponentFilters {
   category?: Category
   framework?: Framework
 }
+
+export type ComponentInput = Omit<UiComponent, 'id'> & { id: string }

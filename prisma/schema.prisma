@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../server/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique @db.VarChar(320)
+  name      String?    @db.VarChar(120)
+  password  String?    @db.VarChar(255)
+  favorites Favorite[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Category {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique @db.VarChar(80)
+  components Component[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Component {
+  id           String     @id @db.VarChar(80)
+  name         String     @db.VarChar(160)
+  thaiName     String     @db.VarChar(160)
+  categoryId   Int
+  category     Category   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  framework    String     @db.VarChar(40)
+  description  String     @db.Text
+  htmlCode     String     @db.Text
+  cssCode      String     @db.Text
+  tailwindCode String     @db.Text
+  aiPrompt     String     @db.Text
+  accent       String     @db.VarChar(32)
+  favorites    Favorite[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([categoryId])
+  @@index([framework])
+}
+
+model Favorite {
+  id          Int       @id @default(autoincrement())
+  userId      String
+  componentId String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  component   Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, componentId])
+  @@index([userId])
+  @@index([componentId])
+}

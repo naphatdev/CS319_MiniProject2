@@ -1,7 +1,7 @@
 import { ArrowUpRight, Heart, Trash2 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import type { UiComponent } from '../../types/component'
-import { useFavoritesStore } from '../../stores/useFavoritesStore'
+import { useFavoriteMutation, useFavorites } from '../../hooks/useFavorites'
 import { PreviewFrame } from '../preview/PreviewFrame'
 
 interface ComponentCardProps {
@@ -10,8 +10,18 @@ interface ComponentCardProps {
 }
 
 export function ComponentCard({ component, removable = false }: ComponentCardProps) {
-  const isFavorite = useFavoritesStore((state) => state.favoriteIds.includes(component.id))
-  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
+  const navigate = useNavigate()
+  const { data: favorites } = useFavorites()
+  const favoriteMutation = useFavoriteMutation()
+  const isFavorite = (favorites ?? []).some((favorite) => favorite.componentId === component.id)
+
+  function handleFavorite() {
+    if (!favoriteMutation.user) {
+      navigate('/login')
+      return
+    }
+    favoriteMutation.mutate({ componentId: component.id, favorite: isFavorite })
+  }
 
   return (
     <article className="component-card">
@@ -19,7 +29,8 @@ export function ComponentCard({ component, removable = false }: ComponentCardPro
         <PreviewFrame component={component} fit />
         <button
           className={`favorite-button ${isFavorite ? 'selected' : ''}`}
-          onClick={() => toggleFavorite(component.id)}
+          onClick={handleFavorite}
+          disabled={favoriteMutation.isPending}
           aria-label={isFavorite ? `นำ ${component.thaiName} ออกจากรายการโปรด` : `บันทึก ${component.thaiName}`}
         >
           {removable ? <Trash2 size={17} /> : <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />}
